@@ -573,15 +573,19 @@ private void drawLevelTransitionScreen(Graphics g) {
     
     // Center the "Level Complete" message
     int xMessage = (getWidth() - metrics.stringWidth(message)) / 2;
-    int yMessage = getHeight() / 2 - 50;
+    int yMessage = getHeight() / 2 - 50;  // Position the message slightly above the center
     g.drawString(message, xMessage, yMessage);
 
-    // Center the "Next Level" message
+    // Set font for the "Next Level" message
     g.setFont(new Font("Helvetica", Font.PLAIN, 24));
+    metrics = getFontMetrics(g.getFont());
+    
+    // Center the "Next Level" message
     int xNextMessage = (getWidth() - metrics.stringWidth(nextMessage)) / 2;
-    int yNextMessage = getHeight() / 2 + 10;
+    int yNextMessage = getHeight() / 2 + 10;  // Position the next message below the first
     g.drawString(nextMessage, xNextMessage, yNextMessage);
 }
+
 
 /**
  * Draws the game statistics on the game board.
