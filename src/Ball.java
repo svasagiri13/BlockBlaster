@@ -66,6 +66,7 @@ public class Ball extends GameObject {
      */
     public void speedUp() {
         if (speed < max_speed) {
+            speed++;
             dx += (dx > 0 ? 1 : -1);  // Increase/decrease horizontal speed
             dy += (dy > 0 ? 1 : -1);  // Increase/decrease vertical speed
             speedChange = true;  // Set speedChange to true when the speed increases
@@ -80,6 +81,7 @@ public class Ball extends GameObject {
      */
     public void slowDown() {
         if (speed > min_speed) {
+            speed--;
             dx -= (dx > 0 ? 1 : -1);  // Decrease horizontal speed
             dy -= (dy > 0 ? 1 : -1);  // Decrease vertical speed
             speedChange = true;  // Set speedChange to true when the speed decreases
