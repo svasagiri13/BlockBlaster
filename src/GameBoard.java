@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Represents the game board for the Block Blaster game.
+ * This class is responsible for managing the game state, rendering graphics,
+ * and handling user input.
+ */
 public class GameBoard extends JPanel implements ActionListener {
 
 
@@ -19,20 +23,26 @@ public class GameBoard extends JPanel implements ActionListener {
     private Ball ball;
     private ArrayList<Brick> bricks;
     private boolean isYouWon = false;  // Track if the player has won
-    private int lives = 14;  // Player starts with 3 lives
+    private int lives = 15;  // Player starts with 15 lives
     private String lastPowerUp = "";  // This will store the last power-up the user receives
     private int currentLevel = 1;  // Start with level 1
     private boolean isLevelTransition = false;  // Track if we are in between levels
     private Timer transitionTimer;  // Timer for level transition
 
 
-
+/**
+     * Constructs a new GameBoard instance and initializes the game board.
+     */
 
     public GameBoard() {
         initGameBoard();
         activePowerUps = new HashMap<>();
     }
-
+/**
+     * Draws the start screen with the game title, instructions, rules, and block representations.
+     * 
+     * @param g the Graphics object used for drawing
+     */
     private void drawStartScreen(Graphics g) {
         String title = "Welcome to Block Blaster!";
         String instructions = "Press ENTER to Start";
@@ -70,7 +80,7 @@ public class GameBoard extends JPanel implements ActionListener {
     
         // Increase spacing for the blocks to avoid overlap
         int blockSize = 40;
-        int blockYPosition = startYPosition + 30;  // Adjust Y position for the blocks (further down from the text)
+        int blockYPosition = startYPosition + 30;  // Adjust Y position for the blocks 
     
         // White Block (Normal)
         g.setColor(Color.WHITE);
@@ -86,6 +96,10 @@ public class GameBoard extends JPanel implements ActionListener {
     }
     
 
+    /**
+     * Initializes the game board by setting up key listeners,
+     * game components, and the game timer.
+     */
     private void initGameBoard() {
         addKeyListener(new KeyAdapter() {
             @Override
@@ -118,8 +132,6 @@ public class GameBoard extends JPanel implements ActionListener {
             }
         });
         
-        
-
         setFocusable(true);
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(1000, 800));  // Setting game window size
@@ -134,6 +146,10 @@ public class GameBoard extends JPanel implements ActionListener {
         timer.start();
     }
 
+    /**
+     * Initializes the bricks for the current level based on defined parameters.
+     * Sets the layout, strength, and type (special or normal) of the bricks.
+     */
     private void initBricks() {
         int brickRows, brickColumns;
         int brickWidth = 60;  // Set the width of each brick
@@ -183,122 +199,127 @@ public class GameBoard extends JPanel implements ActionListener {
         // Debugging information to check brick initialization
         System.out.println("Bricks initialized for level " + currentLevel + ": " + bricks.size());
     }
-    
-    
-    
-    
 
+    /**
+     * Handles the action events for the game, such as moving the ball and paddle,
+     * checking for collisions, and repainting the game board.
+     * 
+     * @param e the ActionEvent that triggered this method
+     */
     @Override
-public void actionPerformed(ActionEvent e) {
-    if (!isGameOver && !isWaitingForRetry) {
-        ball.move();  // Move the ball
-        paddle.move();  // Move the paddle
-        checkCollision();  // Check for collisions with bricks and paddle
-        checkMissedBall();  // Check if the ball was missed (this is where it's called)
-        repaint();  // Redraw the game screen
-    }
-}
-
-
-private void checkMissedBall() {
-    if (ball.getY() > getHeight()) {  // If the ball goes below the screen (missed)
-        lives--;  // Decrease the player's lives by 1
-
-        if (lives > 0) {
-            isWaitingForRetry = true;  // Player is waiting to retry
-            timer.stop();  // Stop the game until they press Enter
-        } else {
-            isGameOver = true;  // If no lives are left, the game is over
-            timer.stop();  // Stop the game loop
+    public void actionPerformed(ActionEvent e) {
+        if (!isGameOver && !isWaitingForRetry) {
+            ball.move();  // Move the ball
+            paddle.move();  // Move the paddle
+            checkCollision();  // Check for collisions with bricks and paddle
+            checkMissedBall();  // Check if the ball was missed
+            repaint();  // Redraw the game screen
         }
-
-        repaint();  // Ensure the game objects are still painted after losing a life
-    }
-}
-
-
-private void checkCollision() {
-    if (ball.getRect().intersects(paddle.getRect())) {
-        ball.reverseY();  // Ball bounces off the paddle
     }
 
-    for (int i = 0; i < bricks.size(); i++) {
-        Brick brick = bricks.get(i);
+    /**
+     * Checks if the ball has been missed by the paddle. If the ball goes below
+     * the screen, it reduces the player's lives and handles game over conditions.
+     */
+    private void checkMissedBall() {
+        if (ball.getY() > getHeight()) {  // If the ball goes below the screen (missed)
+            lives--;  // Decrease the player's lives by 1
 
-        if (ball.getRect().intersects(brick.getRect())) {
-            ball.reverseY();  // Ball bounces off the brick
-            brick.hit();  // Reduce the brick's strength
-
-            // If the brick is destroyed, handle removal and power-up
-            if (brick.isDestroyed()) {
-                // If the brick is special, trigger the power-up
-                if (brick.isSpecial()) {
-                    triggerPowerUp(brick.getPowerUpType());  // Trigger the power-up for special bricks
-                }
-
-                // Remove the brick after power-up is triggered
-                bricks.remove(i);
-                i--;  // Adjust index after removing the brick
+            if (lives > 0) {
+                isWaitingForRetry = true;  // Player is waiting to retry
+                timer.stop();  // Stop the game until they press Enter
+            } else {
+                isGameOver = true;  // If no lives are left, the game is over
+                timer.stop();  // Stop the game loop
             }
 
-            break;  // Only process one brick collision per frame
+            repaint();  // Ensure the game objects are still painted after losing a life
         }
     }
 
-    // **Check if all bricks are destroyed AFTER iterating through all bricks**
-    if (bricks.isEmpty()) {
-        // Move to the next level if there are more levels
-        if (currentLevel < 3) {  // Assume 3 levels total
-            currentLevel++;  // Progress to the next level
-            isLevelTransition = true;  // Enter level transition state
-            startTransitionTimer();  // Start a timer to delay the next level
-            initBricks();  // Initialize bricks for the new level
-            resetBall();  // Reset the ball's position
-            isGameOver = false;  // Ensure the game is not over
-            isYouWon = false;  // Ensure the "You Won" flag is reset
-        } else {
-            // If no more levels, the player has won
-            isGameOver = true;  // Mark the game as over
-            isYouWon = true;  // Set the "You Won" flag
-            timer.stop();  // Stop the game loop
+    /**
+     * Checks for collisions between the ball and the paddle, as well as the ball and the bricks.
+     * Handles the logic for what happens when a collision occurs, including brick destruction
+     * and power-up activation.
+     */
+    private void checkCollision() {
+        if (ball.getRect().intersects(paddle.getRect())) {
+            ball.reverseY();  // Ball bounces off the paddle
+        }
+
+        for (int i = 0; i < bricks.size(); i++) {
+            Brick brick = bricks.get(i);
+
+            if (ball.getRect().intersects(brick.getRect())) {
+                ball.reverseY();  // Ball bounces off the brick
+                brick.hit();  // Reduce the brick's strength
+
+                // If the brick is destroyed, handle removal and power-up
+                if (brick.isDestroyed()) {
+                    // If the brick is special, trigger the power-up
+                    if (brick.isSpecial()) {
+                        triggerPowerUp(brick.getPowerUpType());  // Trigger the power-up for special bricks
+                    }
+
+                    // Remove the brick after power-up is triggered
+                    bricks.remove(i);
+                    i--;  // Adjust index after removing the brick
+                }
+
+                break;  // Only process one brick collision per frame
+            }
+        }
+
+        // Check if all bricks are destroyed AFTER iterating through all bricks
+        if (bricks.isEmpty()) {
+            if (currentLevel < 3) {  // If not at the final level
+                isLevelTransition = true;  // Enter level transition state
+                startTransitionTimer();  // Start the level transition timer
+            } else {
+                // If no more levels, the player has won
+                isGameOver = true;  // Mark the game as over
+                isYouWon = true;  // Set the "You Won" flag
+                timer.stop();  // Stop the game loop
+            }
         }
     }
-}
 
+    /**
+     * Starts the timer for level transitions. This pauses the game and then 
+     * initializes the next level after a delay.
+     */
+    private void startTransitionTimer() {
+        // Stop the main game timer to pause gameplay
+        timer.stop();
 
-
-private void startTransitionTimer() {
-    // Stop the main game timer to pause gameplay
-    timer.stop();
-
-    // Create a timer to delay the next level by 2 seconds (2000 milliseconds)
-    transitionTimer = new Timer(2000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (currentLevel < 3) {  // Assuming 3 levels total
+        // Create a timer to delay the next level by 2 seconds (2000 milliseconds)
+        transitionTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 currentLevel++;  // Progress to the next level
                 initBricks();  // Initialize bricks for the new level
                 resetBall();  // Reset the ball's position
                 isLevelTransition = false;  // Exit the level transition state
                 timer.start();  // Resume the game timer
-            } else {
-                // If no more levels, the player has won the game
-                isGameOver = true;
-                isYouWon = true;
+
+                transitionTimer.stop();  // Stop the transition timer
             }
-            transitionTimer.stop();  // Stop the transition timer
-        }
-    });
+        });
 
-    transitionTimer.setRepeats(false);  // Timer should only fire once
-    transitionTimer.start();  // Start the transition timer
-}
+        transitionTimer.setRepeats(false);  // Timer should only fire once
+        transitionTimer.start();  // Start the transition timer
+    }
 
-
-    
    
 
-// The triggerPowerUp method
+/**
+ * Triggers the specified power-up effect based on the powerUpType provided.
+ * This method applies the effect of the power-up to the paddle or ball,
+ * updates the lastPowerUp message, and starts a timer to reverse the effect
+ * after a defined duration.
+ *
+ * @param powerUpType The type of power-up to be triggered.
+ */
 private void triggerPowerUp(PowerUpType powerUpType) {
     switch (powerUpType) {
         case INCREASE_PADDLE_SIZE:
@@ -334,7 +355,7 @@ private void triggerPowerUp(PowerUpType powerUpType) {
             }
             break;
         case INCREASE_LIFE:
-            lives += 1;
+            lives += 1;  // Increase player's life
             lastPowerUp = "Power-Up: Life Gained";
             startMessageTimer();
             break;
@@ -366,7 +387,7 @@ private void triggerPowerUp(PowerUpType powerUpType) {
     Timer timer = new Timer(POWER_UP_DURATION, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            reversePowerUp(powerUpType);
+            reversePowerUp(powerUpType);  // Revert the power-up effect after duration
             activePowerUps.remove(powerUpType);
         }
     });
@@ -378,7 +399,10 @@ private void triggerPowerUp(PowerUpType powerUpType) {
     repaint();  // Repaint the screen to show the updated power-up message
 }
 
-// The startMessageTimer method
+/**
+ * Starts a timer that clears the last power-up message after a specified duration.
+ * The message is displayed briefly to inform the player of the effect of the power-up.
+ */
 private void startMessageTimer() {
     if (messageTimer != null) {
         messageTimer.stop();  // Stop any previous timer if it exists
@@ -398,7 +422,12 @@ private void startMessageTimer() {
     messageTimer.start();  // Start the timer
 }
 
-// The reversePowerUp method
+/**
+ * Reverses the effects of the specified power-up type after its duration ends.
+ * Resets the attributes of the paddle or ball back to their original states.
+ *
+ * @param powerUpType The type of power-up to reverse.
+ */
 private void reversePowerUp(PowerUpType powerUpType) {
     switch (powerUpType) {
         case INCREASE_PADDLE_SIZE:
@@ -431,56 +460,73 @@ private void reversePowerUp(PowerUpType powerUpType) {
             lastPowerUp = "Ball speed back to normal.";
             startMessageTimer();
             break;
+        case INCREASE_LIFE:
+            lastPowerUp = "Life can not be reversed";
+            startMessageTimer();
+            break;
         default:
             throw new IllegalStateException("Unexpected value: " + powerUpType);
     }
     repaint();
 }
 
-    
-
+/**
+ * Resets the ball to its initial position and starts the game timer.
+ */
 private void resetBall() {
     ball.reset();  // Reset the ball to its initial position
     timer.start();  // Start the game timer
 }
 
+/**
+ * Draws the "You Won!" screen when the player wins the game.
+ * Displays the number of lives left and prompts the player to play again.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawYouWonScreen(Graphics g) {
+    String message = "You Won!";
+    String livesMessage = "Lives Left: " + lives;
+    String playAgainMessage = "Play Again? Press Enter";
+    
+    // Set font for "You Won" message
+    Font font = new Font("Helvetica", Font.BOLD, 36);
+    g.setFont(font);
+    FontMetrics metrics = getFontMetrics(g.getFont());
+    
+    // Calculate the x position to center the "You Won" message
+    int xMessage = (getWidth() - metrics.stringWidth(message)) / 2;
+    int yMessage = getHeight() / 2 - 50;  // Position the message slightly above the center
+    
+    // Draw the "You Won" message
+    g.setColor(Color.GREEN);
+    g.drawString(message, xMessage, yMessage);
+    
+    // Set font for the lives left and play again message
+    Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
+    g.setFont(smallFont);
+    FontMetrics smallMetrics = getFontMetrics(g.getFont());
+    
+    // Calculate the x position to center the "Lives Left" message
+    int xLives = (getWidth() - smallMetrics.stringWidth(livesMessage)) / 2;
+    int yLives = getHeight() / 2 + 10;  // Position the lives message below the "You Won" message
+    g.drawString(livesMessage, xLives, yLives);
+    
+    // Calculate the x position to center the "Play Again" message
+    int xPlayAgain = (getWidth() - smallMetrics.stringWidth(playAgainMessage)) / 2;
+    int yPlayAgain = getHeight() / 2 + 50;  // Position the play again message below the lives message
+    g.drawString(playAgainMessage, xPlayAgain, yPlayAgain);
+}
 
-    private void drawYouWonScreen(Graphics g) {
-        String message = "You Won!";
-        String livesMessage = "Lives Left: " + lives;
-        String playAgainMessage = "Play Again? Press Enter";
-    
-        // Set font for "You Won" message
-        Font font = new Font("Helvetica", Font.BOLD, 36);
-        g.setFont(font);
-        FontMetrics metrics = getFontMetrics(g.getFont());
-    
-        // Calculate the x position to center the "You Won" message
-        int xMessage = (getWidth() - metrics.stringWidth(message)) / 2;
-        int yMessage = getHeight() / 2 - 50;  // Position the message slightly above the center
-    
-        // Draw the "You Won" message
-        g.setColor(Color.GREEN);
-        g.drawString(message, xMessage, yMessage);
-    
-        // Set font for the lives left and play again message
-        Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
-        g.setFont(smallFont);
-        FontMetrics smallMetrics = getFontMetrics(g.getFont());
-    
-        // Calculate the x position to center the "Lives Left" message
-        int xLives = (getWidth() - smallMetrics.stringWidth(livesMessage)) / 2;
-        int yLives = getHeight() / 2 + 10;  // Position the lives message below the "You Won" message
-        g.drawString(livesMessage, xLives, yLives);
-    
-        // Calculate the x position to center the "Play Again" message
-        int xPlayAgain = (getWidth() - smallMetrics.stringWidth(playAgainMessage)) / 2;
-        int yPlayAgain = getHeight() / 2 + 50;  // Position the play again message below the lives message
-        g.drawString(playAgainMessage, xPlayAgain, yPlayAgain);
-    }
-    
-
-    @Override
+   /**
+ * Paints the components of the game board.
+ * This method handles the rendering of the game elements, including the
+ * start screen, game objects, power-up messages, and the game over or
+ * retry screens, based on the current game state.
+ *
+ * @param g the Graphics object to draw on
+ */
+@Override
 public void paintComponent(Graphics g) {
     super.paintComponent(g);  // Clear the screen first
 
@@ -510,6 +556,13 @@ public void paintComponent(Graphics g) {
     }
 }
 
+/**
+ * Draws the level transition screen when the player completes a level.
+ * Displays messages indicating the completion of the current level and
+ * prepares the player for the next level.
+ *
+ * @param g the Graphics object to draw on
+ */
 private void drawLevelTransitionScreen(Graphics g) {
     String message = "Level " + currentLevel + " Complete!";
     String nextMessage = "Get ready for Level " + (currentLevel + 1) + "...";
@@ -530,134 +583,169 @@ private void drawLevelTransitionScreen(Graphics g) {
     g.drawString(nextMessage, xNextMessage, yNextMessage);
 }
 
+/**
+ * Draws the game statistics on the game board.
+ * Displays current level, paddle speed, paddle size, ball speed,
+ * and ball size on the right side of the game screen.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawStats(Graphics g) {
+    g.setColor(Color.WHITE);  // Set color for the stats text
+    g.setFont(new Font("Helvetica", Font.PLAIN, 18));
+    
+    // Display the stats further to the right
+    g.drawString("Game Stats:", 850, 50);  // Move stats to start at x=850
+    g.drawString("Level: " + currentLevel, 850, 80); 
+    g.drawString("Paddle Speed: " + paddle.getSpeed(), 850, 110);
+    g.drawString("Paddle Size: " + paddle.getWidth(), 850, 140);
+    g.drawString("Ball Speed: " + ball.getSpeed(), 850, 170);
+    g.drawString("Ball Size: " + ball.getRadius(), 850, 200);
+}
 
-    
-    private void drawStats(Graphics g) {
-        g.setColor(Color.WHITE);  // Set color for the stats text
-        g.setFont(new Font("Helvetica", Font.PLAIN, 18));
-    
-        // Display the stats further to the right
-        g.drawString("Game Stats:", 850, 50);  // Move stats to start at x=850
-        g.drawString("Level: " + currentLevel, 850, 80); 
-        g.drawString("Paddle Speed: " + paddle.getSpeed(), 850, 110);
-        g.drawString("Paddle Size: " + paddle.getWidth(), 850, 140);
-        g.drawString("Ball Speed: " + ball.getSpeed(), 850, 170);
-        g.drawString("Ball Size: " + ball.getRadius(), 850, 200);
-    }
-           
-    private void drawBoundaryLine(Graphics g) {
-        // Convert Graphics to Graphics2D to use advanced features like setting stroke
-        Graphics2D g2d = (Graphics2D) g;
-    
-        // Set the stroke to make the line wider (e.g., 5 pixels wide)
-        g2d.setStroke(new BasicStroke(5));
-        g2d.setColor(Color.WHITE);  // Set the color for the boundary lines
-    
-        // Draw the horizontal boundary line at the bottom (y = 550), stopping before the right vertical boundary
-        g2d.drawLine(0, 550, getWidth() - 200, 550);  // Adjust the end of the line to stop before the right boundary
-    
-        // Draw the vertical boundary line, starting from the top to just above the horizontal line
-        g2d.drawLine(getWidth() - 200, 0, getWidth() - 200, 550);  // Stop the vertical line at the same y position as the horizontal line
-    }
-    
+/**
+ * Draws the boundary line on the game board.
+ * This method draws a visual boundary to help players identify the play area.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawBoundaryLine(Graphics g) {
+    // Convert Graphics to Graphics2D to use advanced features like setting stroke
+    Graphics2D g2d = (Graphics2D) g;
 
-    private void drawObjects(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.fillRect(paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight());
-    
-        g.setColor(Color.WHITE);
-        g.fillOval(ball.getX(), ball.getY(), ball.getRadius(), ball.getRadius());
-    
-        // Draw bricks with different colors based on strength
-        for (Brick brick : bricks) {
-            if (brick.getStrength() == 2) {
-                g.setColor(Color.MAGENTA);  // Stronger bricks are blue
-            } else {
-                g.setColor(Color.WHITE);  // Standard bricks are red
-            }
-    
-            if (brick.isSpecial()) {
-                g.setColor(Color.CYAN);  // Special bricks are green
-            }
-    
-            g.fillRect(brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight());
+    // Set the stroke to make the line wider (e.g., 5 pixels wide)
+    g2d.setStroke(new BasicStroke(5));
+    g2d.setColor(Color.WHITE);  // Set the color for the boundary lines
+
+    // Draw the horizontal boundary line at the bottom (y = 550), stopping before the right vertical boundary
+    g2d.drawLine(0, 550, getWidth() - 200, 550);  // Adjust the end of the line to stop before the right boundary
+
+    // Draw the vertical boundary line, starting from the top to just above the horizontal line
+    g2d.drawLine(getWidth() - 200, 0, getWidth() - 200, 550);  // Stop the vertical line at the same y position as the horizontal line
+}
+
+/**
+ * Draws the game objects including the paddle, ball, and bricks.
+ * Updates the graphics based on the current state of the game.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawObjects(Graphics g) {
+    g.setColor(Color.YELLOW);
+    g.fillRect(paddle.getX(), paddle.getY(), paddle.getWidth(), paddle.getHeight());
+
+    g.setColor(Color.WHITE);
+    g.fillOval(ball.getX(), ball.getY(), ball.getRadius(), ball.getRadius());
+
+    // Draw bricks with different colors based on strength
+    for (Brick brick : bricks) {
+        if (brick.getStrength() == 2) {
+            g.setColor(Color.MAGENTA);  // Stronger bricks are blue
+        } else {
+            g.setColor(Color.WHITE);  // Standard bricks are red
         }
-    
-        Toolkit.getDefaultToolkit().sync();  // Syncing for smoother animation
-    }
-    
 
-    private void drawLives(Graphics g) {
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Helvetica", Font.PLAIN, 18));
-        g.drawString("Lives: " + lives, 10, 20);  // Display the remaining lives in the top left corner
+        if (brick.isSpecial()) {
+            g.setColor(Color.CYAN);  // Special bricks are green
+        }
+
+        g.fillRect(brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight());
     }
 
-    private void drawRetryScreen(Graphics g) {
-        String message = "You have " + lives + " lives left.";
-        String retryMessage = "Press Enter to try again.";
-    
-        Font font = new Font("Helvetica", Font.BOLD, 36);
-        FontMetrics metrics = getFontMetrics(font);
-    
-        g.setColor(Color.WHITE);
-        g.setFont(font);
-    
-        // Center the first message horizontally
-        int x = (getWidth() - metrics.stringWidth(message)) / 2;
-        int y = getHeight() / 2 - 50;  // Y-coordinate (vertically centered a bit higher)
-        g.drawString(message, x, y);
-    
-        // Set a smaller font for the retry message
-        Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
-        g.setFont(smallFont);
-        FontMetrics smallMetrics = getFontMetrics(smallFont);
-    
-        // Center the retry message horizontally
-        int xRetry = (getWidth() - smallMetrics.stringWidth(retryMessage)) / 2;
-        int yRetry = getHeight() / 2 + 30;  // Y-coordinate (vertically centered a bit lower)
-        g.drawString(retryMessage, xRetry, yRetry);
-    }
-    
+    Toolkit.getDefaultToolkit().sync();  // Syncing for smoother animation
+}
 
-    private void drawGameOver(Graphics g) {
-        String message = "Game Over!";
-        String playAgainMessage = "Play Again? Press Enter";
-    
-        // Set font for "Game Over" message
-        Font font = new Font("Helvetica", Font.BOLD, 36);
-        g.setFont(font);
-        FontMetrics metrics = getFontMetrics(font);
-    
-        // Calculate the x position to center the "Game Over" message
-        int xMessage = (getWidth() - metrics.stringWidth(message)) / 2;
-        int yMessage = getHeight() / 2 - 50;  // Position the "Game Over" message slightly above the center
-    
-        // Draw the "Game Over" message
-        g.setColor(Color.RED);
-        g.drawString(message, xMessage, yMessage);
-    
-        // Set font for "Play Again" message
-        Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
-        g.setFont(smallFont);
-        FontMetrics smallMetrics = getFontMetrics(smallFont);
-    
-        // Calculate the x position to center the "Play Again" message
-        int xPlayAgain = (getWidth() - smallMetrics.stringWidth(playAgainMessage)) / 2;
-        int yPlayAgain = getHeight() / 2 + 30;  // Position the "Play Again" message slightly below the center
-    
-        // Draw the "Play Again" message
-        g.setColor(Color.WHITE);
-        g.drawString(playAgainMessage, xPlayAgain, yPlayAgain);
-    }
-    
+/**
+ * Draws the remaining lives of the player on the game board.
+ * Displays the number of lives in the top left corner.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawLives(Graphics g) {
+    g.setColor(Color.WHITE);
+    g.setFont(new Font("Helvetica", Font.PLAIN, 18));
+    g.drawString("Lives: " + lives, 10, 20);  // Display the remaining lives in the top left corner
+}
 
-    private void restartGame() {
-        isGameOver = false;
-        lives = 3;  // Reset lives to 3
-        ball.reset();  // Reset ball position
-        paddle = new Paddle();  // Reset paddle
-        initBricks();  // Reset the bricks
-        timer.start();  // Restart the game loop
-    }
+/**
+ * Draws the retry screen when the player has lost a life.
+ * Informs the player how many lives they have left and provides an option to retry.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawRetryScreen(Graphics g) {
+    String message = "You have " + lives + " lives left.";
+    String retryMessage = "Press Enter to try again.";
+
+    Font font = new Font("Helvetica", Font.BOLD, 36);
+    FontMetrics metrics = getFontMetrics(font);
+
+    g.setColor(Color.WHITE);
+    g.setFont(font);
+
+    // Center the first message horizontally
+    int x = (getWidth() - metrics.stringWidth(message)) / 2;
+    int y = getHeight() / 2 - 50;  // Y-coordinate (vertically centered a bit higher)
+    g.drawString(message, x, y);
+
+    // Set a smaller font for the retry message
+    Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
+    g.setFont(smallFont);
+    FontMetrics smallMetrics = getFontMetrics(smallFont);
+
+    // Center the retry message horizontally
+    int xRetry = (getWidth() - smallMetrics.stringWidth(retryMessage)) / 2;
+    int yRetry = getHeight() / 2 + 30;  // Y-coordinate (vertically centered a bit lower)
+    g.drawString(retryMessage, xRetry, yRetry);
+}
+
+/**
+ * Draws the game over screen when the player runs out of lives.
+ * Displays a message indicating that the game is over and provides an option to play again.
+ *
+ * @param g the Graphics object to draw on
+ */
+private void drawGameOver(Graphics g) {
+    String message = "Game Over!";
+    String playAgainMessage = "Play Again? Press Enter";
+
+    // Set font for "Game Over" message
+    Font font = new Font("Helvetica", Font.BOLD, 36);
+    g.setFont(font);
+    FontMetrics metrics = getFontMetrics(font);
+
+    // Calculate the x position to center the "Game Over" message
+    int xMessage = (getWidth() - metrics.stringWidth(message)) / 2;
+    int yMessage = getHeight() / 2 - 50;  // Position the "Game Over" message slightly above the center
+
+    // Draw the "Game Over" message
+    g.setColor(Color.RED);
+    g.drawString(message, xMessage, yMessage);
+
+    // Set font for "Play Again" message
+    Font smallFont = new Font("Helvetica", Font.PLAIN, 24);
+    g.setFont(smallFont);
+    FontMetrics smallMetrics = getFontMetrics(smallFont);
+
+    // Calculate the x position to center the "Play Again" message
+    int xPlayAgain = (getWidth() - smallMetrics.stringWidth(playAgainMessage)) / 2;
+    int yPlayAgain = getHeight() / 2 + 30;  // Position the "Play Again" message slightly below the center
+
+    // Draw the "Play Again" message
+    g.setColor(Color.WHITE);
+    g.drawString(playAgainMessage, xPlayAgain, yPlayAgain);
+}
+
+/**
+ * Restarts the game by resetting the game state.
+ * Resets the number of lives, ball position, paddle, and bricks.
+ */
+private void restartGame() {
+    isGameOver = false;
+    lives = 3;  // Reset lives to 3
+    ball.reset();  // Reset ball position
+    paddle = new Paddle();  // Reset paddle
+    initBricks();  // Reset the bricks
+    timer.start();  // Restart the game loop
+}
 }
