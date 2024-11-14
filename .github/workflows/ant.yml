@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: '11'
-        distribution: 'OpenJDK'
+        distribution: 'temurin'
 
     - name: Build and Run Tests with Ant
       run: ant -noinput test -buildfile build.xml
