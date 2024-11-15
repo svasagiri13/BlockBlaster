@@ -2,7 +2,7 @@
 
     <!-- Set up properties -->
     <property name="src.dir" value="src"/>
-    <property name="test.dir" value="src/test/java"/>
+    <property name="test.dir" value="src/test"/>
     <property name="build.dir" value="bin"/>
     <property name="lib.dir" value="lib"/>
     <property name="report.dir" value="test-reports"/>
