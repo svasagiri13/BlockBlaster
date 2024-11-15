@@ -22,6 +22,7 @@
         </javac>
     </target>
 
+
     <!-- Compile and run tests -->
     <target name="test" depends="compile">
         <mkdir dir="${report.dir}"/>
