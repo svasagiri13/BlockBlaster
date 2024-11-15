@@ -19,11 +19,14 @@ public class BallTest {
 
     @Test
     public void testMove() {
-        // Initial position should be (400, 300)
+        System.out.println("Testing move");
         ball.move();  // Move the ball
+        System.out.println("Ball X position after move: " + ball.getX());
+        System.out.println("Ball Y position after move: " + ball.getY());
         assertEquals(402, ball.getX());  // Check X position after moving
         assertEquals(298, ball.getY());  // Check Y position after moving
     }
+    
 
     @Test
     public void testReverseY() {
