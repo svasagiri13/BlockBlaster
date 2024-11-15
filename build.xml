@@ -1,38 +1,36 @@
-<project name="BlockBuster" default="test" basedir=".">
-
-    <!-- Set up properties -->
-    <property name="src.dir" value="src"/>
+<project name="BlockBlaster" default="test" basedir=".">
+    <!-- Define properties for source, build, and test directories -->
+    <property name="src.dir" value="src/main"/>
     <property name="test.dir" value="src/test"/>
     <property name="build.dir" value="bin"/>
-    <property name="lib.dir" value="lib"/>
     <property name="report.dir" value="test-reports"/>
 
-    <!-- Define the classpath, including the lib directory and the build directory -->
-    <path id="classpath">
-        <fileset dir="${lib.dir}">
-            <include name="**/*.jar"/>
-        </fileset>
-        <pathelement path="${build.dir}"/>
-    </path>
-
-    <!-- Clean up compiled files and test reports -->
+    <!-- Clean up the build and report directories -->
     <target name="clean">
         <delete dir="${build.dir}"/>
         <delete dir="${report.dir}"/>
     </target>
 
-    <!-- Compile source files -->
+    <!-- Compile the source code -->
     <target name="compile" depends="clean">
         <mkdir dir="${build.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath"/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}">
+            <include name="**/*.java"/>
+            <classpath>
+                <pathelement path="${build.dir}"/>
+            </classpath>
+        </javac>
     </target>
 
-    <!-- Run JUnit tests -->
+    <!-- Compile and run tests -->
     <target name="test" depends="compile">
         <mkdir dir="${report.dir}"/>
         <junit printsummary="yes" haltonfailure="yes" fork="yes">
-            <classpath refid="classpath"/>
-            <formatter type="xml" />
+            <classpath>
+                <pathelement path="${build.dir}"/>
+                <!-- Add additional dependencies here if necessary -->
+            </classpath>
+            <formatter type="xml"/>
             <batchtest todir="${report.dir}">
                 <fileset dir="${test.dir}">
                     <include name="**/*Test.java"/>
