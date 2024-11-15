@@ -1,3 +1,4 @@
+package main;
 /**
  * The Ball class represents a moving ball in a game.
  * It extends the GameObject class and contains properties
@@ -141,4 +142,9 @@ public class Ball extends GameObject {
     public int getSpeed() {
         return Math.abs(dx);  // Return the ball's speed (either dx or dy)
     }
+
+    public boolean isSpeedChanged() {
+        return speedChange;
+    }
+    
 }

@@ -1,3 +1,4 @@
+package main;
 /**
  * Represents a game object with a position and dimensions in a 2D space.
  * This class provides methods for moving the object and retrieving its bounding rectangle.

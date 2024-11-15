@@ -1,5 +1,8 @@
+package test;
 import org.junit.Before;
 import org.junit.Test;
+
+import main.Rectangle;
 
 import static org.junit.Assert.*;
 

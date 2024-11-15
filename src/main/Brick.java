@@ -1,3 +1,4 @@
+package main;
 /**
  * Represents a brick in the game that can be hit and destroyed.
  * Each brick has a strength indicating how many hits it can take 

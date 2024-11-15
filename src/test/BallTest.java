@@ -1,5 +1,9 @@
+package test;
 import org.junit.Before;
 import org.junit.Test;
+
+import main.Ball;
+import main.Rectangle;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,13 +58,13 @@ public class BallTest {
     @Test
 public void testSpeedChangeFlag() {
     ball.speedUp(); // Speed is 3
-    assertTrue(ball.speedChange); // Speed should have changed
+    assertTrue(ball.isSpeedChanged()); // Speed should have changed
 
     ball.slowDown(); // Speed should be 2
-    assertTrue(ball.speedChange); // Speed should have changed again
+    assertTrue(ball.isSpeedChanged()); // Speed should have changed again
 
     ball.slowDown(); // No change
-    assertFalse(ball.speedChange); // Speed change should not be true anymore
+    assertFalse(ball.isSpeedChanged()); // Speed change should not be true anymore
 }
 
 @Test

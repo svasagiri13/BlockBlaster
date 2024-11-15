@@ -1,3 +1,4 @@
+package main;
 import java.awt.event.KeyEvent;
 
 /**
@@ -39,7 +40,13 @@ public class Paddle extends GameObject {
             x = 800 - width;  // Prevent paddle from moving off the right edge
         }
     }
+    public boolean isIncreasePaddleSpeed() {
+        return increasePaddleSpeed;
+    }
 
+    public boolean isDecreasePaddleSpeed() {
+        return decreasePaddleSpeed;
+    }
     /**
      * Handles key press events for paddle movement.
      * @param e the KeyEvent that triggered this method
@@ -87,24 +94,29 @@ public class Paddle extends GameObject {
     /**
      * Increases the speed of the paddle up to the maximum speed.
      */
-    public void increasePaddleSpeed() {
+    public boolean increasePaddleSpeed() {
         if (speed < MAX_SPEED) {
             speed++;  // Increase speed
             increasePaddleSpeed = true;  // Flag that speed has increased
+            return true;
         } else {
             increasePaddleSpeed = false;  // No change if at max speed
+            return false;
         }
     }
+    
 
     /**
      * Decreases the speed of the paddle down to the minimum speed.
      */
-    public void decreasePaddleSpeed() {
+    public boolean decreasePaddleSpeed() {
         if (speed > MIN_SPEED) {
             speed--;  // Decrease speed
             decreasePaddleSpeed = true;  // Flag that speed has decreased
+            return true;
         } else {
             decreasePaddleSpeed = false;  // No change if at min speed
+            return false;
         }
     }
 

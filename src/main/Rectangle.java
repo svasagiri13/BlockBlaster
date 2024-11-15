@@ -1,3 +1,4 @@
+package main;
 /**
  * Represents a rectangle defined by its position (x, y) and dimensions (width, height).
  * This class provides methods to check for intersections with other rectangles.

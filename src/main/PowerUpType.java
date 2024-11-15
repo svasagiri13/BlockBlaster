@@ -1,3 +1,4 @@
+package main;
 /**
  * An enumeration representing the different types of power-ups available in the game.
  * Each power-up type corresponds to a specific effect that can enhance gameplay.
